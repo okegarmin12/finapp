@@ -219,28 +219,3 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
 });
-
-    flexDirection: 'row',
-    gap: 16,
-    marginTop: 16,
-    marginBottom: 32,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2563eb',
-    marginTop: 8,
-  },
-});
