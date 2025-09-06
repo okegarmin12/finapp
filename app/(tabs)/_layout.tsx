@@ -1,18 +1,37 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Calculator, Settings, TrendingUp } from 'lucide-react-native';
+import { Home, Calculator, Settings, TrendingUp } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
+  const colors = useThemeColors();
+  
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#2563eb',
-        tabBarInactiveTintColor: '#6b7280',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopColor: '#e5e7eb',
-          paddingBottom: 4,
-          height: 60,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          paddingBottom: 8,
+          paddingTop: 8,
+          height: 68,
+          elevation: 8,
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          position: 'absolute',
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginTop: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
         },
       }}>
       <Tabs.Screen
@@ -20,7 +39,7 @@ export default function TabLayout() {
         options={{
           title: 'Übersicht',
           tabBarIcon: ({ size, color }) => (
-            <Home size={size} color={color} />
+            <Home size={22} color={color} />
           ),
         }}
       />
@@ -29,7 +48,7 @@ export default function TabLayout() {
         options={{
           title: 'Eingaben',
           tabBarIcon: ({ size, color }) => (
-            <Calculator size={size} color={color} />
+            <Calculator size={22} color={color} />
           ),
         }}
       />
@@ -38,7 +57,7 @@ export default function TabLayout() {
         options={{
           title: 'Posten',
           tabBarIcon: ({ size, color }) => (
-            <Settings size={size} color={color} />
+            <Settings size={22} color={color} />
           ),
         }}
       />
@@ -47,7 +66,7 @@ export default function TabLayout() {
         options={{
           title: 'Details',
           tabBarIcon: ({ size, color }) => (
-            <TrendingUp size={size} color={color} />
+            <TrendingUp size={22} color={color} />
           ),
         }}
       />

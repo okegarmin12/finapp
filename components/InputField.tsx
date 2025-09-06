@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Animated } from 'react-native';
+import { Typography } from './ui/Typography';
+import { useThemeColors } from '@/hooks/useColorScheme';
 
 interface InputFieldProps {
   label: string;
@@ -18,53 +20,85 @@ export function InputField({
   keyboardType = 'decimal-pad',
   suffix
 }: InputFieldProps) {
+  const colors = useThemeColors();
+  const focusAnim = new Animated.Value(0);
+  
+  const handleFocus = () => {
+    Animated.timing(focusAnim, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+  
+  const handleBlur = () => {
+    Animated.timing(focusAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+  
+  const borderColor = focusAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors.border, colors.primary],
+  });
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputContainer}>
+      <Typography variant="caption" weight="medium" color="secondary" style={styles.label}>
+        {label}
+      </Typography>
+      <Animated.View style={[
+        styles.inputContainer,
+        { 
+          backgroundColor: colors.surface,
+          borderColor: borderColor,
+        }
+      ]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.text }]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
+          placeholderTextColor={colors.textMuted}
           keyboardType={keyboardType}
           returnKeyType="done"
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
-        {suffix && <Text style={styles.suffix}>{suffix}</Text>}
-      </View>
+        {suffix && (
+          <Typography variant="body" weight="medium" color="tertiary" style={styles.suffix}>
+            {suffix}
+          </Typography>
+        )}
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 12,
+    marginVertical: 16,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#d1d5db',
-    borderRadius: 12,
-    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    minHeight: 56,
   },
   input: {
     flex: 1,
     fontSize: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    color: '#111827',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    fontWeight: '500',
   },
   suffix: {
-    fontSize: 16,
-    color: '#6b7280',
-    paddingRight: 16,
-    fontWeight: '600',
+    paddingRight: 20,
   },
 });

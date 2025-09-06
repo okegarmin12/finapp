@@ -1,12 +1,18 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MoneyCard } from '@/components/MoneyCard';
 import { UpcomingItemsList } from '@/components/UpcomingItemsList';
+import { Typography } from '@/components/ui/Typography';
+import { Button } from '@/components/ui/Button';
 import { useFinancialStore } from '@/store/useFinancialStore';
 import { calcAvailable, getUpcomingItems } from '@/utils/calculations';
 import { getCurrentDateBerlin } from '@/utils/dateUtils';
-import { Calculator, Settings } from 'lucide-react-native';
+import { useThemeColors, useColorScheme } from '@/hooks/useColorScheme';
+import { Calculator, Settings, Plus } from 'lucide-react-native';
 
 // Sichere Datums-Funktion als Fallback
 const getSafeCurrentDate = () => {
@@ -56,6 +62,8 @@ const formatDateSafely = (date) => {
 export default function OverviewScreen() {
   const router = useRouter();
   const { inputs, recurringItems, loadData } = useFinancialStore();
+  const colors = useThemeColors();
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
     loadData();
@@ -66,89 +74,152 @@ export default function OverviewScreen() {
   const upcomingItems = getUpcomingItems(recurringItems, today);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Finanzplaner</Text>
-        <Text style={styles.headerSubtitle}>
-          {formatDateSafely(today)}
-        </Text>
-      </View>
+    <>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <LinearGradient
+          colors={[colors.primary, colors.primaryLight]}
+          style={styles.header}
+        >
+          <Animated.View entering={FadeInDown.delay(100)}>
+            <Typography variant="overline" weight="medium" style={styles.headerOverline}>
+              {formatDateSafely(today)}
+            </Typography>
+            <Typography variant="h2" weight="bold" style={styles.headerTitle}>
+              Finanzplaner
+            </Typography>
+          </Animated.View>
+        </LinearGradient>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <MoneyCard
-          title="Verfügbar bis Monatsende"
-          amount={calculation.verfuegbarBisMonatsende}
-          type={calculation.verfuegbarBisMonatsende >= 0 ? 'positive' : 'negative'}
-        />
+        <ScrollView 
+          style={[styles.content, { backgroundColor: colors.backgroundSecondary }]} 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.primaryCardContainer}>
+            <MoneyCard
+              title="Verfügbar bis Monatsende"
+              amount={calculation.verfuegbarBisMonatsende}
+              type={calculation.verfuegbarBisMonatsende >= 0 ? 'positive' : 'negative'}
+              isPrimary={true}
+            />
+          </View>
 
-        <MoneyCard
-          title="Verbleibende Einnahmen"
-          amount={calculation.remainingIncome}
-          type="positive"
-          subtitle="In diesem Monat"
-        />
+          <View style={styles.statsContainer}>
+            <MoneyCard
+              title="Verbleibende Einnahmen"
+              amount={calculation.remainingIncome}
+              type="positive"
+              subtitle="In diesem Monat"
+            />
 
-        <MoneyCard
-          title="Verbleibende Ausgaben"
-          amount={calculation.remainingExpense}
-          type="negative"
-          subtitle="In diesem Monat"
-        />
+            <MoneyCard
+              title="Verbleibende Ausgaben"
+              amount={calculation.remainingExpense}
+              type="negative"
+              subtitle="In diesem Monat"
+            />
+          </View>
 
-        <UpcomingItemsList items={upcomingItems} />
+          <UpcomingItemsList items={upcomingItems} />
 
-        <View style={styles.actionButtons}>
-          <TouchableOpacity 
-            style={styles.actionButton} 
-            onPress={() => router.push('/inputs')}
-          >
-            <Calculator size={24} color="#2563eb" />
-            <Text style={styles.actionButtonText}>Eingaben</Text>
-          </TouchableOpacity>
+          <View style={styles.actionButtons}>
+            <Button
+              title="Eingaben"
+              onPress={() => router.push('/inputs')}
+              variant="secondary"
+              icon={<Calculator size={20} color={colors.primary} />}
+              style={styles.actionButton}
+            />
 
-          <TouchableOpacity 
-            style={styles.actionButton} 
+            <Button
+              title="Verwalten"
+              onPress={() => router.push('/manage')}
+              variant="secondary"
+              icon={<Settings size={20} color={colors.primary} />}
+              style={styles.actionButton}
+            />
+          </View>
+        </ScrollView>
+        
+        {/* Floating Action Button */}
+        <Animated.View 
+          entering={FadeInUp.delay(500).springify()}
+          style={styles.fab}
+        >
+          <TouchableOpacity
+            style={[styles.fabButton, { backgroundColor: colors.primary }]}
             onPress={() => router.push('/manage')}
           >
-            <Settings size={24} color="#2563eb" />
-            <Text style={styles.actionButtonText}>Posten verwalten</Text>
+            <Plus size={24} color="#ffffff" />
           </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+        </Animated.View>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
   },
   header: {
-    backgroundColor: '#2563eb',
     paddingTop: 60,
     paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingBottom: 32,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+  },
+  headerOverline: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: 4,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '800',
     color: '#ffffff',
-    textAlign: 'center',
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#bfdbfe',
-    textAlign: 'center',
-    marginTop: 4,
   },
   content: {
     flex: 1,
-    padding: 16,
+    marginTop: -16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  primaryCardContainer: {
+    marginBottom: 24,
+  },
+  statsContainer: {
+    gap: 12,
+    marginBottom: 24,
   },
   actionButtons: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 24,
+  },
+  actionButton: {
+    flex: 1,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+  },
+  fabButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+});
+
     flexDirection: 'row',
     gap: 16,
     marginTop: 16,
